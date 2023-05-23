@@ -11,18 +11,19 @@ datasource db {
 }
 
 model User {
-  code        String      @id @default(uuid())
-  name        String
-  email       String
-  password    String
-  role        Role        @default(BASIC)
-  center      Center      @relation("onSiteStudents", fields: [centerId], references: [id]) // 1 to Many
-  centerId    String
-  field       Field       @relation("StudentsInTheFields", fields: [fieldId], references: [id]) // 1 to Many
-  fieldId     String
-  blackListed Boolean     @default(false)
-  journeys    Journey[]   @relation("drivers") // Many to 1
-  passengers  Passenger[] // Many to 1
+  code              ARA       @id
+  name              String
+  email             String
+  password          String
+  role              Role      @default(BASIC)
+  center            Center    @relation("onSiteStudents", fields: [centerId], references: [id]) // 1 to Many
+  centerId          String
+  field             Field     @relation("StudentsInTheFields", fields: [fieldId], references: [id]) // 1 to Many
+  fieldId           String
+  blackListed       Boolean   @default(false)
+  journeyDriver     Journey[] @relation("drivers") // Many to 1
+  journeyPassengers Journey[]
+  messages          Message[] @relation("messageAuthor") // Many to 1
 }
 
 model Center {
@@ -42,81 +43,210 @@ model Field {
 }
 
 model Journey {
-  id                   String      @id @default(uuid())
-  departure            Center      @relation("departures", fields: [departureId], references: [id]) // 1 to Many
+  id                   String   @id @default(uuid())
+  departure            Center   @relation("departures", fields: [departureId], references: [id]) // 1 to Many
   departureId          String
-  arrival              Center      @relation("arrivals", fields: [arrivalId], references: [id]) // 1 to Many
+  arrival              Center   @relation("arrivals", fields: [arrivalId], references: [id]) // 1 to Many
   arrivalId            String
   departureTime        DateTime
   EstimatedArrivalTime DateTime
-  driver               User        @relation("drivers", fields: [driverId], references: [code]) // 1 to Many
-  driverId             String
-  passengers           Passenger[]
+  driver               User     @relation("drivers", fields: [driverId], references: [code]) // 1 to Many
+  driverId             ARA
+  passengers           User[]
 }
 
-model Passenger {
-  user      User    @relation(fields: [userId], references: [code]) // 1 to Many
-  userId    String
-  journey   Journey @relation(fields: [journeyId], references: [id]) // 1 to Many
-  journeyId String
+model Topic {
+  id       String    @id @default(uuid())
+  tittle   String
+  closed   Boolean
+  messages Message[] @relation("messages") // Many to 1
+}
 
-  @@id([userId, journeyId])
+model Message {
+  id       String   @id @default(uuid())
+  author   User     @relation("messageAuthor", fields: [authorId], references: [code]) // 1 to Many
+  authorId ARA
+  content  String
+  date     DateTime
+  topic    Topic    @relation("messages", fields: [topicId], references: [id]) // 1 to Many
+  topicId  String
 }
 
 enum Role {
   BASIC
-  EDITOR
   ADMIN
 }
 
-// --------------------------
+enum ARA {
+  ARA561910
+  ARA561900
+  ARA561913
+  ARA535173
+  ARA513436
+  ARA543717
+  ARA562014
+  ARA534251
+  ARA540128
+  ARA571823
+  ARA545088
+  ARA543718
+  ARA567227
+  ARA561052
+  ARA519818
+  ARA561057
+  ARA513455
+  ARA561935
+  ARA535189
+  ARA561906
+  ARA562015
+  ARA561942
+  ARA561055
+  ARA564462
+  ARA543719
+  ARA561959
+  ARA561903
+  ARA561946
+  ARA543720
+  ARA561950
+  ARA561060
+  ARA535115
+  ARA559051
+  ARA512758
+  ARA561933
+  ARA561067
+  ARA561897
+  ARA561953
+  ARA542911
+  ARA561957
+  ARA561058
+  ARA567338
+  ARA561926
+  ARA561056
+  ARA561951
+  ARA519333
+  ARA512757
+  ARA561915
+  ARA519335
+  ARA543721
+  ARA543722
+  ARA561943
+  ARA561945
+  ARA561944
+  ARA543723
+  ARA561912
+  ARA543724
+  ARA561917
+  ARA561925
+  ARA559053
+  ARA564700
+  ARA519821
+  ARA535112
+  ARA535175
+  ARA561054
+  ARA561954
+  ARA543725
+  ARA543726
+  ARA512690
+  ARA535111
+  ARA561918
+  ARA561053
+  ARA543727
+  ARA561922
+  ARA540136
+  ARA561924
+  ARA543728
+  ARA561893
+  ARA519823
+  ARA535185
+  ARA570412
+  ARA519407
+  ARA517593
+  ARA561956
+  ARA561065
+  ARA561063
+  ARA561923
+  ARA561907
+  ARA543729
+  ARA572162
+  ARA543730
+  ARA561902
+  ARA543731
+  ARA567952
+  ARA569609
+  ARA561064
+  ARA543742
+  ARA535114
+  ARA561947
+  ARA561936
+  ARA559054
+  ARA549633
+  ARA561955
+  ARA561937
+  ARA561896
+  ARA535199
+  ARA561921
+  ARA543733
+  ARA561934
+  ARA512743
+  ARA564701
+  ARA568101
+  ARA543734
+  ARA535192
+  ARA535123
+  ARA561898
+  ARA571824
+  ARA512738
+  ARA561939
+  ARA561919
+  ARA572160
+  ARA543735
+  ARA571001
+  ARA561940
+  ARA561899
+  ARA543736
+  ARA562016
+  ARA559052
+  ARA561901
+  ARA535110
+  ARA561958
+  ARA561920
+  ARA561066
+  ARA564708
+  ARA561941
+  ARA561911
+  ARA535119
+  ARA561916
+  ARA535120
+  ARA535118
+  ARA559055
+  ARA561061
+  ARA519832
+  ARA543737
+  ARA535109
+  ARA534278
+  ARA543738
+  ARA535122
+  ARA561059
+  ARA535121
+  ARA561062
+  ARA535171
+  ARA561914
+  ARA561938
+  ARA543739
+  ARA535116
+  ARA570414
+  ARA561909
+  ARA561908
+  ARA561905
+  ARA569318
+  ARA561952
+  ARA574557
+  ARA561949
+  ARA542935
+  ARA561895
+  ARA561904
+  ARA571828
+  ARA543740
+  ARA513857
+}
 
-// model User {
-//   // id          Int @id @default(autoincrement())
-//   id            String          @id @default(uuid())
-//   name          String
-//   age           Int
-//   email         String?         @unique // Modifier ptional ? or aeeay []
-//   // isAdmin       Boolean
-//   role          Role            @default(BASIC)
-//   writtenPosts  Post[]          @relation("writtenPosts")
-//   favoritePosts Post[]          @relation("FavoritePosts")
-//   preference    UserPreference?
-
-//   // @@unique([age, name]) // Block level attribute
-//   @@index([email])
-// }
-
-// model UserPreference {
-//   id           String  @id @default(uuid())
-//   emailUpdates Boolean
-//   user         User    @relation(fields: [userId], references: [id]) // 1 to 1 Relationship
-//   userId       String  @unique
-// }
-
-// model Post {
-//   id            String     @id @default(uuid())
-//   title         String
-//   averageRating Float
-//   createdAt     DateTime   @default(now())
-//   updatedAt     DateTime   @updatedAt
-//   author        User       @relation("writtenPosts", fields: [authorId], references: [id]) // 1 to Many Relationship
-//   authorId      String // refrences the userId
-//   favoritedBy   User?      @relation("FavoritePosts", fields: [favoritedById], references: [id]) // 1 to Many Relationship
-//   favoritedById String?
-//   categories    Category[] // Many to Many
-
-//   // @@id([title, authorId]) // Composed Id
-// }
-
-// model Category {
-//   id    String @id @default(uuid())
-//   name  String
-//   posts Post[] // Many to Many
-// }
-
-// enum Role {
-//   BASIC
-//   EDITOR
-//   ADMIN
-// }
