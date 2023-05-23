@@ -11,18 +11,19 @@ datasource db {
 }
 
 model User {
-  code        String      @id @default(uuid())
-  name        String
-  email       String
-  password    String
-  role        Role        @default(BASIC)
-  center      Center      @relation("onSiteStudents", fields: [centerId], references: [id]) // 1 to Many
-  centerId    String
-  field       Field       @relation("StudentsInTheFields", fields: [fieldId], references: [id]) // 1 to Many
-  fieldId     String
-  blackListed Boolean     @default(false)
-  journeys    Journey[]   @relation("drivers") // Many to 1
-  passengers  Passenger[] // Many to 1
+  code              String    @id
+  name              String
+  email             String
+  password          String
+  role              Role      @default(BASIC)
+  center            Center    @relation("onSiteStudents", fields: [centerId], references: [id]) // 1 to Many
+  centerId          String
+  field             Field     @relation("StudentsInTheFields", fields: [fieldId], references: [id]) // 1 to Many
+  fieldId           String
+  blackListed       Boolean   @default(false)
+  journeyDriver     Journey[] @relation("drivers") // Many to 1
+  journeyPassengers Journey[]
+  messages          Message[] @relation("messageAuthor") // Many to 1
 }
 
 model Center {
@@ -42,30 +43,37 @@ model Field {
 }
 
 model Journey {
-  id                   String      @id @default(uuid())
-  departure            Center      @relation("departures", fields: [departureId], references: [id]) // 1 to Many
+  id                   String   @id @default(uuid())
+  departure            Center   @relation("departures", fields: [departureId], references: [id]) // 1 to Many
   departureId          String
-  arrival              Center      @relation("arrivals", fields: [arrivalId], references: [id]) // 1 to Many
+  arrival              Center   @relation("arrivals", fields: [arrivalId], references: [id]) // 1 to Many
   arrivalId            String
   departureTime        DateTime
   EstimatedArrivalTime DateTime
-  driver               User        @relation("drivers", fields: [driverId], references: [code]) // 1 to Many
+  driver               User     @relation("drivers", fields: [driverId], references: [code]) // 1 to Many
   driverId             String
-  passengers           Passenger[]
+  passengers           User[]
 }
 
-model Passenger {
-  user      User    @relation(fields: [userId], references: [code]) // 1 to Many
-  userId    String
-  journey   Journey @relation(fields: [journeyId], references: [id]) // 1 to Many
-  journeyId String
+model Topic {
+  id       String    @id @default(uuid())
+  tittle   String
+  closed   Boolean
+  messages Message[] @relation("messages") // Many to 1
+}
 
-  @@id([userId, journeyId])
+model Message {
+  id       String   @id @default(uuid())
+  author   User     @relation("messageAuthor", fields: [authorId], references: [code]) // 1 to Many
+  authorId String
+  content  String
+  date     DateTime
+  topic    Topic    @relation("messages", fields: [topicId], references: [id]) // 1 to Many
+  topicId  String
 }
 
 enum Role {
   BASIC
-  EDITOR
   ADMIN
 }
 
