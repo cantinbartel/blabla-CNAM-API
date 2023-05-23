@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  code        String      @id @default(uuid())
+  name        String
+  email       String
+  password    String
+  role        Role        @default(BASIC)
+  center      Center      @relation("onSiteStudents", fields: [centerId], references: [id]) // 1 to Many
+  centerId    String
+  field       Field       @relation("StudentsInTheFields", fields: [fieldId], references: [id]) // 1 to Many
+  fieldId     String
+  blackListed Boolean     @default(false)
+  journeys    Journey[]   @relation("drivers") // Many to 1
+  passengers  Passenger[] // Many to 1
+}
+
+model Center {
+  id         String    @id @default(uuid())
+  city       String
+  students   User[]    @relation("onSiteStudents") // Many to 1
+  field      Field[] // Many to Many
+  departures Journey[] @relation("departures") // Many to 1
+  arrivals   Journey[] @relation("arrivals") // Many to 1
+}
+
+model Field {
+  id       String   @id @default(uuid())
+  name     String
+  students User[]   @relation("StudentsInTheFields") // Many to 1
+  center   Center[] // Many to Many
+}
+
+model Journey {
+  id                   String      @id @default(uuid())
+  departure            Center      @relation("departures", fields: [departureId], references: [id]) // 1 to Many
+  departureId          String
+  arrival              Center      @relation("arrivals", fields: [arrivalId], references: [id]) // 1 to Many
+  arrivalId            String
+  departureTime        DateTime
+  EstimatedArrivalTime DateTime
+  driver               User        @relation("drivers", fields: [driverId], references: [code]) // 1 to Many
+  driverId             String
+  passengers           Passenger[]
+}
+
+model Passenger {
+  user      User    @relation(fields: [userId], references: [code]) // 1 to Many
+  userId    String
+  journey   Journey @relation(fields: [journeyId], references: [id]) // 1 to Many
+  journeyId String
+
+  @@id([userId, journeyId])
+}
+
+enum Role {
+  BASIC
+  EDITOR
+  ADMIN
+}
+
+// --------------------------
+
+// model User {
+//   // id          Int @id @default(autoincrement())
+//   id            String          @id @default(uuid())
+//   name          String
+//   age           Int
+//   email         String?         @unique // Modifier ptional ? or aeeay []
+//   // isAdmin       Boolean
+//   role          Role            @default(BASIC)
+//   writtenPosts  Post[]          @relation("writtenPosts")
+//   favoritePosts Post[]          @relation("FavoritePosts")
+//   preference    UserPreference?
+
+//   // @@unique([age, name]) // Block level attribute
+//   @@index([email])
+// }
+
+// model UserPreference {
+//   id           String  @id @default(uuid())
+//   emailUpdates Boolean
+//   user         User    @relation(fields: [userId], references: [id]) // 1 to 1 Relationship
+//   userId       String  @unique
+// }
+
+// model Post {
+//   id            String     @id @default(uuid())
+//   title         String
+//   averageRating Float
+//   createdAt     DateTime   @default(now())
+//   updatedAt     DateTime   @updatedAt
+//   author        User       @relation("writtenPosts", fields: [authorId], references: [id]) // 1 to Many Relationship
+//   authorId      String // refrences the userId
+//   favoritedBy   User?      @relation("FavoritePosts", fields: [favoritedById], references: [id]) // 1 to Many Relationship
+//   favoritedById String?
+//   categories    Category[] // Many to Many
+
+//   // @@id([title, authorId]) // Composed Id
+// }
+
+// model Category {
+//   id    String @id @default(uuid())
+//   name  String
+//   posts Post[] // Many to Many
+// }
+
+// enum Role {
+//   BASIC
+//   EDITOR
+//   ADMIN
+// }
