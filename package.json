@@ -2,7 +2,7 @@
   "name": "cum-api",
   "version": "1.0.0",
   "description": "CUM API",
-  "main": "src/server.ts",
+  "main": "scr/server.ts",
   "scripts": {
     "start": "nodemon scr/server.ts",
     "develop": "docker-compose up --build",
@@ -15,6 +15,9 @@
   },
   "author": "Cantin Bartel",
   "license": "ISC",
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
   "dependencies": {
     "@prisma/client": "^4.14.1",
     "cors": "^2.8.5",
