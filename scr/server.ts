@@ -1,6 +1,9 @@
 import express, { Application } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import araRoutes from './routes/araRoutes';
+import fieldRoutes from './routes/fieldRoutes';
+import userRoutes from './routes/userRoutes';
 import communicationRouter from "./routes/communicationRoutes";
 import userRouter from "./routes/userRoutes";
 
@@ -9,6 +12,11 @@ const app: Application = express();
 app.use(express.json());
 app.use(cors());
 
+app.use('/api/ara', araRoutes);
+app.use('/api/fields', fieldRoutes);
+app.use('/api/users', userRoutes);
+
+// app.use('/api/users', userRoutes);
 app.use('/api/communication', communicationRouter);
 app.use('/api/user', userRouter);
 
