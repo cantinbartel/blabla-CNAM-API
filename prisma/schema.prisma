@@ -34,6 +34,7 @@ model Center {
   field      Field[] // Many to Many
   departures Journey[] @relation("departures") // Many to 1
   arrivals   Journey[] @relation("arrivals") // Many to 1
+  isCenter   Boolean
 }
 
 model Field {
