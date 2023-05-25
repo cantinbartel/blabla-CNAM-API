@@ -15,6 +15,6 @@ RUN npx prisma generate
 COPY . .
 
 EXPOSE 8080
-# required for docker desktop port mapping
+#required for docker desktop port mapping
 
 CMD ["npm", "start"]
