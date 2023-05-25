@@ -6,7 +6,6 @@ import fieldRoutes from './routes/fieldRoutes';
 import userRoutes from './routes/userRoutes';
 import centerRoutes from './routes/centerRoutes';
 import communicationRouter from "./routes/communicationRoutes";
-import userRouter from "./routes/userRoutes";
 
 dotenv.config()
 const app: Application = express();
@@ -18,7 +17,6 @@ app.use('/api/fields', fieldRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/centers', centerRoutes);
 app.use('/api/communication', communicationRouter);
-app.use('/api/user', userRouter);
 
 const port = Number(process.env.PORT!) | 8080;
 

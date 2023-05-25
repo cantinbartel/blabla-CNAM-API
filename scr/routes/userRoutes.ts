@@ -6,17 +6,20 @@ import {
     getAllUsers,
     getUserById,
     updateUserById,
-    resetUserPassword,
+    verifyPassword
+    // resetUserPassword,
 } from "../controllers/userController";
 
 const router = Router();
 
-router.get("/getAllUsers", getAllUsers);
-router.get("/getUserById", getUserById);
-router.post("/addUser", addUser);
-router.put("/updateUserById/:id", updateUserById);
-router.delete("/deleteUserById/:id", deleteUserById);
-router.put("/resetUserPassword/:araCode", resetUserPassword);
+router.get("/", getAllUsers);
+router.get("/:id", getUserById);
+router.post("/", addUser);
+router.put("/:id", updateUserById);
+router.delete("/:id", deleteUserById);
+// router.put("/resetUserPassword/:araCode", resetUserPassword);
+
+router.post("/verifyPassword", verifyPassword);
 
 
 export default router;
