@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import nodemailer from 'nodemailer';
 // import nodemailerSendgrid from 'nodemailer-sendgrid-transport';
-import { generateToken, Payload } from "../middlewares/middleware";
+import generateToken from "../../utils/generateToken";
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
 
@@ -53,16 +53,6 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
       const center = await prisma.center.findUnique({ where: { id: centerId } });
       const fieldId = user.fieldId;
       const field = await prisma.field.findUnique({ where: { id: fieldId } });
-  
-      if (ara) {
-        const userJwt: Payload = {
-          id,
-          araCode: user.araCode,
-          username: ara.name,
-          role: user.role.toString(),
-        };
-        const token = generateToken(userJwt);
-      }
   
       res.json({ user, ara, center, field });
     } catch (error) {
@@ -151,7 +141,7 @@ export const verifyPassword = async (req: Request, res: Response) => {
 
     const { email, inputPassword } = req.body;
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ where: { email }, include: { ara: true } });
 
     if (user) {
         const hashedPassword = user.password;
@@ -160,12 +150,18 @@ export const verifyPassword = async (req: Request, res: Response) => {
             res.json({message: "authentication denied..."})
             return
         };
-        res.json({message: "authentication succeeded..."});  
+        res.json({
+            message: "authentication succeeded...",
+            araCode: user.araCode,
+            name: user.ara.name,
+            surname: user.ara.surname,
+            email: user.email,
+            isAdmin: user.role,
+            token: generateToken(user.araCode)
+        });  
     } else {
-        // return "User not found";
         res.json({message: "Password or email invalid..."})
     }
-
 };
 
 

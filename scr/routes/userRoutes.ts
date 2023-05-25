@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { protect, admin } from '../middlewares/authMiddleware';
 
 import { 
     addUser,
@@ -12,14 +13,21 @@ import {
 
 const router = Router();
 
-router.get("/", getAllUsers);
+router.post("/verifyPassword", verifyPassword);
+
+// Ajoutez 'protect' comme middleware à toutes les routes
+router.use(protect);
 router.get("/:id", getUserById);
-router.post("/", addUser);
 router.put("/:id", updateUserById);
+
+// Ajoutez 'admin' comme middleware aux routes qui nécessitent les droits d'administrateur
+router.use(admin);
+
+router.get("/", getAllUsers);
+router.post("/", addUser);
 router.delete("/:id", deleteUserById);
 // router.put("/resetUserPassword/:araCode", resetUserPassword);
 
-router.post("/verifyPassword", verifyPassword);
 
 
 export default router;
