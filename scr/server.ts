@@ -4,6 +4,7 @@ import cors from 'cors';
 import araRoutes from './routes/araRoutes';
 import fieldRoutes from './routes/fieldRoutes';
 import userRoutes from './routes/userRoutes';
+import centerRoutes from './routes/centerRoutes';
 import communicationRouter from "./routes/communicationRoutes";
 import userRouter from "./routes/userRoutes";
 
@@ -15,8 +16,7 @@ app.use(cors());
 app.use('/api/ara', araRoutes);
 app.use('/api/fields', fieldRoutes);
 app.use('/api/users', userRoutes);
-
-// app.use('/api/users', userRoutes);
+app.use('/api/centers', centerRoutes);
 app.use('/api/communication', communicationRouter);
 app.use('/api/user', userRouter);
 

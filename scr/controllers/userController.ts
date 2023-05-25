@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import prisma from "../prisma";
 import { Role } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { generateToken } from "../middlewares/middleware";
 import { Payload } from "@prisma/client/runtime";
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {

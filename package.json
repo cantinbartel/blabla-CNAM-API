@@ -15,6 +15,9 @@
   },
   "author": "Cantin Bartel",
   "license": "ISC",
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
   "dependencies": {
     "@prisma/client": "^4.14.1",
     "bcrypt": "^5.1.0",
