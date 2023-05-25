@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from "@prisma/client";
 import prisma from '../prisma';
 
 
@@ -31,38 +30,56 @@ export const getFieldById = async (req: Request, res: Response): Promise<void> =
 /* POST - CREATE FIELD */
 export const addField = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { name } = req.body;
+    
+      const { name, centerId } = req.body;
       const field = await prisma.field.create({
         data: {
           name,
+          center: {
+            connect: { id: centerId },
+          },
+        },
+        include: {
+          center: true,
         },
       });
       res.json(field);
     } catch (error) {
       res.status(500).send(`Error: ${error}`);
     }
-  };
+};
 
 /* PUT - UPDATE FIELD */
 export const updateField = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const { name } = req.body;
-
-    const field = await prisma.field.update({
-      where: {
-        id: id,
-      },
-      data: {
-        name,
-      },
-    });
-
-    res.json(field);
-  } catch (error) {
-    res.status(500).send(`Error: ${error}`);
-  }
-};
+    try {
+      const { id } = req.params;
+      const { name, centerId } = req.body;
+  
+      if (!name || !centerId) {
+        res.status(400).send('Name and center are required');
+        return;
+      }
+  
+      const field = await prisma.field.update({
+        where: {
+          id: id,
+        },
+        data: {
+            name,
+            center: {
+              connect: { id: centerId },
+            },
+          },
+          include: {
+            center: true,
+          },
+        });
+  
+      res.json(field);
+    } catch (error) {
+      res.status(500).send(`Error: ${error}`);
+    }
+  };
   
   /* DELETE - DELETE FIELD BY ID*/
   export const deleteFieldById = async (req: Request, res: Response): Promise<void> => {

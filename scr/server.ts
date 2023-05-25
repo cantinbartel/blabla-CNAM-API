@@ -13,9 +13,9 @@ app.use(cors());
 
 app.use('/api/ara', araRoutes);
 app.use('/api/fields', fieldRoutes);
+app.use('/api/centers', centerRoutes);
 
 // app.use('/api/users', userRoutes);
-app.use('/api/centers', centerRoutes);
 
 const port = Number(process.env.PORT!) | 8080;
 
