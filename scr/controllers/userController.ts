@@ -155,15 +155,13 @@ export const verifyPassword = async (req: Request, res: Response) => {
 
     if (user) {
         const hashedPassword = user.password;
-
-        try {
-            await bcrypt.compare(inputPassword, hashedPassword);
-            res.json({message: "authentication succeeded..."});
-        } catch (error) {
-            res.json({message: "authentication denied..."});
-            // throw new Error('Error comparing passwords');
-        }
-    }else {
+        const comparePassword = await bcrypt.compare(inputPassword, hashedPassword);
+        if(!comparePassword) {
+            res.json({message: "authentication denied..."})
+            return
+        };
+        res.json({message: "authentication succeeded..."});  
+    } else {
         // return "User not found";
         res.json({message: "Password or email invalid..."})
     }
