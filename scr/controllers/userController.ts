@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import prisma from "../prisma";
 import { Role } from "@prisma/client";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
+const nodemailer = require('nodemailer');
+const nodemailerSendgrid = require('nodemailer-sendgrid-transport');
 import { generateToken, Payload } from "../middlewares/middleware";
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
@@ -41,6 +44,9 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
         return;
       }
   
+        //const userJwt: Payload = { id: id, araCode: user.araCode, username: ara?.name, role: user.role };
+        //const token = generateToken(userJwt);
+
       const araCode = user.araCode;
       const ara = await prisma.ara.findUnique({ where: { id: araCode } });
       const centerId = user.centerId;
@@ -58,7 +64,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
         const token = generateToken(userJwt);
       }
   
-      res.json({ user, ara, center, field });
+      res.json({ user, ara, ara, center, field });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Error retrieving user' });
@@ -68,7 +74,35 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 export const addUser = async (req: Request, res: Response): Promise<void> => {
 
     const { code, email, password, centerId, fieldId } = req.body;
+    const { code, email, password, centerId, fieldId } = req.body;
     
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    try {
+
+        const newUser = await prisma.user.create({
+            data: {
+                ara: {
+                    connect: { id: code }
+                },
+                email,
+                password: hashedPassword,
+                role: Role.BASIC,
+                center: {
+                    connect: { id: centerId }
+                },
+                field: {
+                    connect: { id: fieldId }
+                },
+                blackListed: false,
+            },
+        });
+
+        res.json({ message: 'User created successfully', user: newUser });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error creating user' });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
@@ -105,11 +139,13 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
         const id = req.params.id;
         const { email, password, role } = req.body;
 
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const updatedUser = await prisma.user.update({
         where: { id },
         data: {
             email,
-            password,
+            password: hashedPassword,
             role,
         },
         });
@@ -137,4 +173,61 @@ export const deleteUserById = async (req: Request, res: Response): Promise<void>
         res.status(500).json({ error: 'Error deleting user' });
     }
 
+};
+
+export const resetUserPassword = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { araCode } = req.params;
+        const user = await prisma.user.findUnique({ where: { araCode } });
+
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+
+        // Generate a random password
+        let newPassword = crypto.randomBytes(4).toString('hex');
+        
+        // Hash the new password
+        bcrypt.hash(newPassword, 10, async function(err, hashedPassword) {
+            if (err) {
+                console.error(err);
+                res.status(500).json({ error: 'Error hashing password' });
+                return;
+            }
+
+            // Update the user's password in the database
+            const updatedUser = await prisma.user.update({
+                where: { araCode },
+                data: { password: hashedPassword },
+            });
+
+            const transporter = nodemailer.createTransport(nodemailerSendgrid({
+                auth: {
+                    api_key: 'SG.21J2zHThSXyG26I1IiXc5g.yrn8BrTtN2n4Iccd4uzscEJtsENyFr_HBXT07x4yCto'
+                }
+            }));
+
+            let mailOptions = {
+                from: 'CnamUnitedMobility@hotmail.com',
+                to: user.email,
+                subject: '[CnamUnitedMobility] Votre mot de passe a été réinitialisé',
+                text: `Bonjour,\n\nSuite à une demande, nous avons réinitialisé votre mot de passe.\nLors de votre prochaine connection, utilisez celui-ci "${newPassword}"\n\nLa bise <3`
+            };
+
+            // Send the email with the new password
+            transporter.sendMail(mailOptions, function(error: any, info: any){
+                if (error) {
+                    console.error(error);
+                    res.status(500).json({ error: 'Error sending email' });
+                } else {
+                    res.json({ message: 'Password reset successfully, email sent', user: updatedUser });
+                }
+            });
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error resetting password' });
+    }
 };

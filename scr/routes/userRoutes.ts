@@ -5,7 +5,8 @@ import {
     deleteUserById,
     getAllUsers,
     getUserById,
-    updateUserById
+    updateUserById,
+    resetUserPassword,
 } from "../controllers/userController";
 
 const router = Router();
@@ -15,5 +16,7 @@ router.get("/getUserById", getUserById);
 router.post("/addUser", addUser);
 router.put("/updateUserById/:id", updateUserById);
 router.delete("/deleteUserById/:id", deleteUserById);
+router.put("/resetUserPassword/:araCode", resetUserPassword);
+
 
 export default router;
