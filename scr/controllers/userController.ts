@@ -18,6 +18,19 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
 
 };
 
+/*Vérification d'un mot de passe
+
+const enteredPassword = 'password';
+bcrypt.compare(enteredPassword, hashedPassword, function(err, result) {
+    if (result) {
+        console.log("Mot de passe correct");
+    } else {
+        console.log("Mot de passe incorrect");
+    }
+});
+
+*/
+
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
 
     try {

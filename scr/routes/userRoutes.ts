@@ -6,7 +6,7 @@ import {
     getAllUsers,
     getUserById,
     updateUserById,
-    resetUserPassword
+    resetUserPassword,
 } from "../controllers/userController";
 
 const router = Router();
