@@ -135,8 +135,8 @@ export const deleteUserById = async (req: Request, res: Response): Promise<void>
 
 export const resetUserPassword = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { id } = req.params;
-        const user = await prisma.user.findUnique({ where: { id } });
+        const { araCode } = req.params;
+        const user = await prisma.user.findUnique({ where: { araCode } });
 
         if (!user) {
             res.status(404).json({ error: 'User not found' });
@@ -156,7 +156,7 @@ export const resetUserPassword = async (req: Request, res: Response): Promise<vo
 
             // Update the user's password in the database
             const updatedUser = await prisma.user.update({
-                where: { id },
+                where: { araCode },
                 data: { password: hashedPassword },
             });
 

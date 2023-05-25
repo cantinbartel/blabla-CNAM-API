@@ -16,7 +16,7 @@ router.get("/getUserById/:id", getUserById);
 router.post("/addUser", addUser);
 router.put("/updateUserById/:id", updateUserById);
 router.delete("/deleteUserById/:id", deleteUserById);
-router.put("/resetUserPassword/:id", resetUserPassword);
+router.put("/resetUserPassword/:araCode", resetUserPassword);
 
 
 export default router;
