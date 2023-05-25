@@ -11,7 +11,7 @@ import {
 const router = Router();
 
 router.get("/getAllUsers", getAllUsers);
-router.get("/getUserById/:id", getUserById);
+router.get("/getUserById", getUserById);
 router.post("/addUser", addUser);
 router.put("/updateUserById/:id", updateUserById);
 router.delete("/deleteUserById/:id", deleteUserById);

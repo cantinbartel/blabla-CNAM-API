@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import prisma from "../prisma";
 import { Role } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { Payload } from "@prisma/client/runtime";
+import { generateToken, Payload } from "../middlewares/middleware";
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
 
@@ -32,27 +32,37 @@ const passwordsMatch = await verifyPassword(inputPassword, hashedPasswordFromDat
 */
 
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
-
     try {
-        const id = req.params.id;
-        const user = await prisma.user.findUnique({ where: { id } });
-        const araCode = user?.araCode;
-        const ara = await prisma.user.findUnique({ where: { araCode } }).ara(); 
-
-        if (!user) {
+      const { id } = req.body;
+      const user = await prisma.user.findUnique({ where: { id } });
+  
+      if (!user) {
         res.status(404).json({ error: 'User not found' });
         return;
-        }
-
-        //const userJwt: Payload = { id: id, araCode: user.araCode, username: ara?.name, role: user.role };
-        //const token = generateToken(userJwt);
-
-        res.json({ user, ara });
+      }
+  
+      const araCode = user.araCode;
+      const ara = await prisma.ara.findUnique({ where: { id: araCode } });
+      const centerId = user.centerId;
+      const center = await prisma.center.findUnique({ where: { id: centerId } });
+      const fieldId = user.fieldId;
+      const field = await prisma.field.findUnique({ where: { id: fieldId } });
+  
+      if (ara) {
+        const userJwt: Payload = {
+          id,
+          araCode: user.araCode,
+          username: ara.name,
+          role: user.role.toString(),
+        };
+        const token = generateToken(userJwt);
+      }
+  
+      res.json({ user, ara, center, field });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error retrieving user' });
+      console.error(error);
+      res.status(500).json({ error: 'Error retrieving user' });
     }
-
 };
 
 export const addUser = async (req: Request, res: Response): Promise<void> => {
