@@ -3,8 +3,8 @@ import prisma from "../prisma";
 import { Role } from "@prisma/client";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-const nodemailer = require('nodemailer');
-const nodemailerSendgrid = require('nodemailer-sendgrid-transport');
+import nodemailer from 'nodemailer';
+import nodemailerSendgrid from 'nodemailer-sendgrid-transport';
 import { generateToken, Payload } from "../middlewares/middleware";
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
@@ -64,7 +64,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
         const token = generateToken(userJwt);
       }
   
-      res.json({ user, ara, ara, center, field });
+      res.json({ user, ara, center, field });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Error retrieving user' });
@@ -74,35 +74,7 @@ export const getUserById = async (req: Request, res: Response): Promise<void> =>
 export const addUser = async (req: Request, res: Response): Promise<void> => {
 
     const { code, email, password, centerId, fieldId } = req.body;
-    const { code, email, password, centerId, fieldId } = req.body;
-    
-    const hashedPassword = await bcrypt.hash(password, 10);
 
-    try {
-
-        const newUser = await prisma.user.create({
-            data: {
-                ara: {
-                    connect: { id: code }
-                },
-                email,
-                password: hashedPassword,
-                role: Role.BASIC,
-                center: {
-                    connect: { id: centerId }
-                },
-                field: {
-                    connect: { id: fieldId }
-                },
-                blackListed: false,
-            },
-        });
-
-        res.json({ message: 'User created successfully', user: newUser });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error creating user' });
-    }
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
