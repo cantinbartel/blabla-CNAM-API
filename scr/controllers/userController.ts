@@ -36,7 +36,7 @@ const passwordsMatch = await verifyPassword(inputPassword, hashedPasswordFromDat
 
 export const getUserById = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { id } = req.body;
+      const { id } = req.params;
       const user = await prisma.user.findUnique({ where: { id } });
   
       if (!user) {

@@ -13,15 +13,23 @@ const protect = async(req: any, res: Response, next: NextFunction) => {
             }
             const decoded = jwt.verify(token, process.env.JWT_SECRET)
             console.log('DECODED TOKEN....', decoded)
+            // const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            // if (typeof decoded === 'object' && 'payload' in decoded && 'userId' in decoded.payload) {
+            //     req.user = await prisma.user.findUnique({ where: { id: decoded.payload.userId } });
+            // } else {
+            //     res.json('Invalid token');
+            //     return;
+            // }
 
-            if (typeof decoded === 'object' && 'id' in decoded) {
-                req.user = await prisma.user.findUnique({ where: { id: decoded.id } });
+
+            console.log('PAYLOAD USER ID', decoded)
+
+            if (typeof decoded === 'object' && 'payload' in decoded && 'userId' in decoded.payload && 'araCode' in decoded.payload) {
+                req.user = await prisma.user.findUnique({ where: { id: decoded.payload.userId } });
             } else {
                 res.json('Invalid token');
                 return
             }
-            
-
             next()
         } catch (error) {
             console.error(error)
@@ -39,11 +47,14 @@ const protect = async(req: any, res: Response, next: NextFunction) => {
 }
 
 const admin = (req: any, res: Response, next: NextFunction) => {
-    if(req.user && req.user.isAdmin) {
+    // if(req.user && req.user.isAdmin) {
+    console.log('VALUE OF REQ USER ROLE')
+    if(req.user && req.user.role === 'ADMIN') {
+        console.log('REQ USER', req.user)
         next()
     } else {
         res.status(401)
-        throw new Error('Not authorized as an admin')
+        res.json('Not authorized as an admin')
     }
 }
 
