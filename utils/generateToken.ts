@@ -1,10 +1,15 @@
 import jwt from 'jsonwebtoken'
 
-const generateToken = (araCode: string) => {
+type TokenPayload = {
+    araCode: string
+    userId: string
+}
+
+const generateToken = (payload: TokenPayload) => {
     if (!process.env.JWT_SECRET) {
         return
     }
-    return jwt.sign({ araCode }, process.env.JWT_SECRET, {
+    return jwt.sign({ payload }, process.env.JWT_SECRET, {
         expiresIn: '30d'
     })
 }

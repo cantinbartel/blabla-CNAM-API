@@ -139,7 +139,7 @@ export const deleteUserById = async (req: Request, res: Response): Promise<void>
 
 export const verifyPassword = async (req: Request, res: Response) => {
 
-    const { email, inputPassword } = req.body;
+    const { email, password: inputPassword } = req.body;
 
     const user = await prisma.user.findUnique({ where: { email }, include: { ara: true } });
 
@@ -150,6 +150,10 @@ export const verifyPassword = async (req: Request, res: Response) => {
             res.json({message: "authentication denied..."})
             return
         };
+        const payload = {
+            araCode: user.araCode,
+            userId: user.id,
+        };
         res.json({
             message: "authentication succeeded...",
             araCode: user.araCode,
@@ -157,7 +161,7 @@ export const verifyPassword = async (req: Request, res: Response) => {
             surname: user.ara.surname,
             email: user.email,
             isAdmin: user.role,
-            token: generateToken(user.araCode)
+            token: generateToken(payload)
         });  
     } else {
         res.json({message: "Password or email invalid..."})

@@ -12,6 +12,7 @@ const protect = async(req: any, res: Response, next: NextFunction) => {
                 return
             }
             const decoded = jwt.verify(token, process.env.JWT_SECRET)
+            console.log('DECODED TOKEN....', decoded)
 
             if (typeof decoded === 'object' && 'id' in decoded) {
                 req.user = await prisma.user.findUnique({ where: { id: decoded.id } });
