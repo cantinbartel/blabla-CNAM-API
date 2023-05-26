@@ -3,8 +3,8 @@ import prisma from "../prisma";
 import { Role } from "@prisma/client";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import nodemailer from 'nodemailer';
-// import nodemailerSendgrid from 'nodemailer-sendgrid-transport';
+const nodemailer = require('nodemailer');
+const nodemailerSendgrid = require('nodemailer-sendgrid-transport');
 import generateToken from "../../utils/generateToken";
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
@@ -169,59 +169,59 @@ export const verifyPassword = async (req: Request, res: Response) => {
 };
 
 
-// export const resetUserPassword = async (req: Request, res: Response): Promise<void> => {
-//     try {
-//         const { araCode } = req.params;
-//         const user = await prisma.user.findUnique({ where: { araCode } });
+export const resetUserPassword = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { araCode } = req.params;
+        const user = await prisma.user.findUnique({ where: { araCode } });
 
-//         if (!user) {
-//             res.status(404).json({ error: 'User not found' });
-//             return;
-//         }
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
 
-//         // Generate a random password
-//         let newPassword = crypto.randomBytes(4).toString('hex');
+        // Generate a random password
+        let newPassword = crypto.randomBytes(4).toString('hex');
         
-//         // Hash the new password
-//         bcrypt.hash(newPassword, 10, async function(err, hashedPassword) {
-//             if (err) {
-//                 console.error(err);
-//                 res.status(500).json({ error: 'Error hashing password' });
-//                 return;
-//             }
+        // Hash the new password
+        bcrypt.hash(newPassword, 10, async function(err, hashedPassword) {
+            if (err) {
+                console.error(err);
+                res.status(500).json({ error: 'Error hashing password' });
+                return;
+            }
 
-//             // Update the user's password in the database
-//             const updatedUser = await prisma.user.update({
-//                 where: { araCode },
-//                 data: { password: hashedPassword },
-//             });
+            // Update the user's password in the database
+            const updatedUser = await prisma.user.update({
+                where: { araCode },
+                data: { password: hashedPassword },
+            });
 
-//             // const transporter = nodemailer.createTransport(nodemailerSendgrid({
-//             //     auth: {
-//             //         api_key: 'SG.21J2zHThSXyG26I1IiXc5g.yrn8BrTtN2n4Iccd4uzscEJtsENyFr_HBXT07x4yCto'
-//             //     }
-//             // }));
+            const transporter = nodemailer.createTransport(nodemailerSendgrid({
+                auth: {
+                    api_key: 'SG.21J2zHThSXyG26I1IiXc5g.yrn8BrTtN2n4Iccd4uzscEJtsENyFr_HBXT07x4yCto'
+                }
+            }));
 
-//             let mailOptions = {
-//                 from: 'CnamUnitedMobility@hotmail.com',
-//                 to: user.email,
-//                 subject: '[CnamUnitedMobility] Votre mot de passe a été réinitialisé',
-//                 text: `Bonjour,\n\nSuite à une demande, nous avons réinitialisé votre mot de passe.\nLors de votre prochaine connection, utilisez celui-ci "${newPassword}"\n\nLa bise <3`
-//             };
+            let mailOptions = {
+                from: 'CnamUnitedMobility@hotmail.com',
+                to: user.email,
+                subject: '[CnamUnitedMobility] Votre mot de passe a été réinitialisé',
+                text: `Bonjour,\n\nSuite à une demande, nous avons réinitialisé votre mot de passe.\nLors de votre prochaine connection, utilisez celui-ci "${newPassword}"\n\nLa bise <3`
+            };
 
-//             // Send the email with the new password
-//             // transporter.sendMail(mailOptions, function(error: any, info: any){
-//             //     if (error) {
-//             //         console.error(error);
-//             //         res.status(500).json({ error: 'Error sending email' });
-//             //     } else {
-//             //         res.json({ message: 'Password reset successfully, email sent', user: updatedUser });
-//             //     }
-//             // });
-//         });
+            // Send the email with the new password
+            transporter.sendMail(mailOptions, function(error: any, info: any){
+                if (error) {
+                    console.error(error);
+                    res.status(500).json({ error: 'Error sending email' });
+                } else {
+                    res.json({ message: 'Password reset successfully, email sent', user: updatedUser });
+                }
+            });
+        });
 
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ error: 'Error resetting password' });
-//     }
-// };
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error resetting password' });
+    }
+};
