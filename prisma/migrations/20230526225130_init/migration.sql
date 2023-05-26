@@ -1,21 +1,24 @@
 -- CreateTable
 CREATE TABLE `User` (
-    `code` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
+    `id` VARCHAR(191) NOT NULL,
+    `araCode` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
-    `role` ENUM('BASIC', 'EDITOR', 'ADMIN') NOT NULL DEFAULT 'BASIC',
+    `role` ENUM('BASIC', 'ADMIN') NOT NULL DEFAULT 'BASIC',
     `centerId` VARCHAR(191) NOT NULL,
     `fieldId` VARCHAR(191) NOT NULL,
     `blackListed` BOOLEAN NOT NULL DEFAULT false,
 
-    PRIMARY KEY (`code`)
+    UNIQUE INDEX `User_araCode_key`(`araCode`),
+    UNIQUE INDEX `User_email_key`(`email`),
+    PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Center` (
     `id` VARCHAR(191) NOT NULL,
     `city` VARCHAR(191) NOT NULL,
+    `isCenter` BOOLEAN NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -41,11 +44,32 @@ CREATE TABLE `Journey` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Passenger` (
-    `userId` VARCHAR(191) NOT NULL,
-    `journeyId` VARCHAR(191) NOT NULL,
+CREATE TABLE `Topic` (
+    `id` VARCHAR(191) NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `closed` BOOLEAN NOT NULL,
 
-    PRIMARY KEY (`userId`, `journeyId`)
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Message` (
+    `id` VARCHAR(191) NOT NULL,
+    `authorId` VARCHAR(191) NOT NULL,
+    `content` VARCHAR(191) NOT NULL,
+    `date` DATETIME(3) NOT NULL,
+    `topicId` VARCHAR(191) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Ara` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `surname` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `Ara_id_key`(`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -56,6 +80,18 @@ CREATE TABLE `_CenterToField` (
     UNIQUE INDEX `_CenterToField_AB_unique`(`A`, `B`),
     INDEX `_CenterToField_B_index`(`B`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `_JourneyToUser` (
+    `A` VARCHAR(191) NOT NULL,
+    `B` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `_JourneyToUser_AB_unique`(`A`, `B`),
+    INDEX `_JourneyToUser_B_index`(`B`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `User` ADD CONSTRAINT `User_araCode_fkey` FOREIGN KEY (`araCode`) REFERENCES `Ara`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `User` ADD CONSTRAINT `User_centerId_fkey` FOREIGN KEY (`centerId`) REFERENCES `Center`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -70,16 +106,22 @@ ALTER TABLE `Journey` ADD CONSTRAINT `Journey_departureId_fkey` FOREIGN KEY (`de
 ALTER TABLE `Journey` ADD CONSTRAINT `Journey_arrivalId_fkey` FOREIGN KEY (`arrivalId`) REFERENCES `Center`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Journey` ADD CONSTRAINT `Journey_driverId_fkey` FOREIGN KEY (`driverId`) REFERENCES `User`(`code`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Journey` ADD CONSTRAINT `Journey_driverId_fkey` FOREIGN KEY (`driverId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Passenger` ADD CONSTRAINT `Passenger_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`code`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Message` ADD CONSTRAINT `Message_authorId_fkey` FOREIGN KEY (`authorId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Passenger` ADD CONSTRAINT `Passenger_journeyId_fkey` FOREIGN KEY (`journeyId`) REFERENCES `Journey`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Message` ADD CONSTRAINT `Message_topicId_fkey` FOREIGN KEY (`topicId`) REFERENCES `Topic`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_CenterToField` ADD CONSTRAINT `_CenterToField_A_fkey` FOREIGN KEY (`A`) REFERENCES `Center`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_CenterToField` ADD CONSTRAINT `_CenterToField_B_fkey` FOREIGN KEY (`B`) REFERENCES `Field`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_JourneyToUser` ADD CONSTRAINT `_JourneyToUser_A_fkey` FOREIGN KEY (`A`) REFERENCES `Journey`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_JourneyToUser` ADD CONSTRAINT `_JourneyToUser_B_fkey` FOREIGN KEY (`B`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
