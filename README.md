@@ -1,21 +1,15 @@
-# TaskApp API
+# urSpot
 
-## PORT 
+## Docker scripts
 
-API runs on port 8080 by default
+**Build Docker Image:**
 
-## Available Scripts
+```bash
+docker build -t expo-docker .
+```
 
-In the project directory, you can run:
+**Run expo with docke:**
 
-### `npm start`
-
-Runs the API.
-
-### `npm run develop`
-
-Runs the API in a Docker container.
-
-### `npm run develop -d`
-
-Runs the API in a Docker container using detached mode.
+```bash
+docker run -it -p 19000:19000 -p 19001:19001 -p 19002:19002 ecpo-docker
+```
